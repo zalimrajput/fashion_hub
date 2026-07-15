@@ -8,6 +8,11 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
     },
 
+    productName: {
+      type: String,
+      required: true,
+    },
+
     quantity: {
       type: Number,
       required: true,
@@ -24,7 +29,27 @@ const orderItemSchema = new mongoose.Schema(
       default: "",
     },
 
-    price: {
+    originalPrice: {
+      type: Number,
+      required: true,
+    },
+
+    discountPercentage: {
+      type: Number,
+      default: 0,
+    },
+
+    discountAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    finalPrice: {
+      type: Number,
+      required: true,
+    },
+
+    subtotal: {
       type: Number,
       required: true,
     },
@@ -47,11 +72,25 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    products: [orderItemSchema],
+    products: {
+    type: [orderItemSchema],
+    required: true,
+    validate: {
+        validator: function(value) {
+            return value.length > 0;
+        },
+        message: "Order must contain at least one product"
+    }
+},
 
-    totalAmount: {
+    subtotal: {
       type: Number,
       required: true,
+      default: 0,
+    },
+
+    totalDiscount: {
+      type: Number,
       default: 0,
     },
 
@@ -60,14 +99,21 @@ const orderSchema = new mongoose.Schema(
       default: 0,
     },
 
-    discount: {
+    grandTotal: {
       type: Number,
+      required: true,
       default: 0,
     },
 
     paymentMethod: {
       type: String,
-      enum: ["Cash on Delivery", "Bank Transfer", "Card", "JazzCash", "EasyPaisa"],
+      enum: [
+        "Cash on Delivery",
+        "Bank Transfer",
+        "Card",
+        "JazzCash",
+        "EasyPaisa",
+      ],
       default: "Cash on Delivery",
     },
 
@@ -101,9 +147,16 @@ const orderSchema = new mongoose.Schema(
     },
 
     city: {
-      type: String,
-      required: true,
-    },
+    type: String,
+    required: true,
+    trim: true,
+},
+
+province: {
+    type: String,
+    required: true,
+    trim: true,
+},
 
     notes: {
       type: String,
