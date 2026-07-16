@@ -10,11 +10,12 @@ const conversationRoutes = require("./routes/conversationRoutes");
 const aiTrainingRoutes = require("./routes/aiTrainingRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const whatsappRoutes = require("./routes/whatsappRoutes");
 
 
 dotenv.config();
 
-connectDB();
+// connectDB();
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/whatsapp", whatsappRoutes);
 
 app.get("/", (req, res) => {
     res.send("AI Sales Assistant Backend Running...");
