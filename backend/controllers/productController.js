@@ -1,5 +1,23 @@
 const Product = require("../models/Product");
 
+const parseList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (_) {
+    // fall through to comma-separated
+  }
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+};
+
+const parseBoolean = (value, fallback = false) => {
+  if (typeof value === "boolean") return value;
+  if (value === undefined || value === null || value === "") return fallback;
+  return String(value).toLowerCase() === "true" || value === "1" || value === "on";
+};
+
 // Create Product
 const createProduct = async (req, res) => {
 
@@ -25,16 +43,16 @@ const createProduct = async (req, res) => {
             category: req.body.category,
             subCategory: req.body.subCategory,
             description: req.body.description,
-            price: req.body.price,
-            discount: req.body.discount,
-            sizes: req.body.sizes,
-            colors: req.body.colors,
-            stock: req.body.stock,
+            price: Number(req.body.price),
+            discount: Number(req.body.discount || 0),
+            sizes: parseList(req.body.sizes),
+            colors: parseList(req.body.colors),
+            stock: Number(req.body.stock || 0),
             gender: req.body.gender,
             season: req.body.season,
-            isTrending: req.body.isTrending,
-            isBestSeller: req.body.isBestSeller,
-            status: req.body.status,
+            isTrending: parseBoolean(req.body.isTrending),
+            isBestSeller: parseBoolean(req.body.isBestSeller),
+            status: parseBoolean(req.body.status, true),
             images
 
         });
@@ -106,6 +124,15 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     let updateData = { ...req.body };
+
+    if (updateData.sizes !== undefined) updateData.sizes = parseList(updateData.sizes);
+    if (updateData.colors !== undefined) updateData.colors = parseList(updateData.colors);
+    if (updateData.price !== undefined) updateData.price = Number(updateData.price);
+    if (updateData.discount !== undefined) updateData.discount = Number(updateData.discount);
+    if (updateData.stock !== undefined) updateData.stock = Number(updateData.stock);
+    if (updateData.isTrending !== undefined) updateData.isTrending = parseBoolean(updateData.isTrending);
+    if (updateData.isBestSeller !== undefined) updateData.isBestSeller = parseBoolean(updateData.isBestSeller);
+    if (updateData.status !== undefined) updateData.status = parseBoolean(updateData.status, true);
 
     // If new images are uploaded, replace old images
     if (req.files && req.files.length > 0) {
