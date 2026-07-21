@@ -6,6 +6,6 @@ const {
 
 const router = express.Router();
 
-router.post("/webhook", receiveMessage);
+router.post("/", receiveMessage);
 
 module.exports = router;
