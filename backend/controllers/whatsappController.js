@@ -1,30 +1,26 @@
+const axios = require("axios");
 const { sendMessage } = require("../services/whatsappService");
 
 const receiveMessage = async (req, res) => {
     try {
-
         const incomingMessage = req.body.Body;
         const from = req.body.From;
 
-        console.log("Message :", incomingMessage);
-        console.log("From :", from);
+        console.log("Message:", incomingMessage);
+        console.log("From:", from);
 
-        await sendMessage(
-            from,
-            "👋 Welcome to FashionHub!\n\nThank you for contacting us."
-        );
-
-        res.status(200).send("Message received.");
-
-    } catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
+        const aiResponse = await axios.post("http://127.0.0.1:8000/chat", {
+            session_id: from,
+            message: incomingMessage
         });
 
+        await sendMessage(from, aiResponse.data.reply);
+
+        res.status(200).send("OK");
+
+    } catch (err) {
+        console.error(err.response?.data || err.message);
+        res.status(500).send("Error");
     }
 };
 

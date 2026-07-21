@@ -15,7 +15,7 @@ const whatsappRoutes = require("./routes/whatsappRoutes");
 
 dotenv.config();
 
-// connectDB();
+connectDB();
 
 const app = express();
 
