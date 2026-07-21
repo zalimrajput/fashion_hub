@@ -181,6 +181,24 @@
 
 const Product = require("../models/Product");
 
+const parseList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (_) {
+    // fall through to comma-separated
+  }
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+};
+
+const parseBoolean = (value, fallback = false) => {
+  if (typeof value === "boolean") return value;
+  if (value === undefined || value === null || value === "") return fallback;
+  return String(value).toLowerCase() === "true" || value === "1" || value === "on";
+};
+
 // Create Product
 const createProduct = async (req, res) => {
   try {
@@ -251,23 +269,21 @@ const createProduct = async (req, res) => {
 
     const product = await Product.create({
 
-      productName: req.body.productName,
-      category: req.body.category,
-      subCategory: req.body.subCategory,
-      description: req.body.description,
-      price: req.body.price,
-      discount: req.body.discount,
-
-      sizes: sizes,
-      colors: colors,
-
-      stock: req.body.stock,
-      gender: req.body.gender,
-      season: req.body.season,
-      isTrending: req.body.isTrending,
-      isBestSeller: req.body.isBestSeller,
-      status: req.body.status,
-      images
+            productName: req.body.productName,
+            category: req.body.category,
+            subCategory: req.body.subCategory,
+            description: req.body.description,
+            price: req.body.price,
+            discount: req.body.discount,
+            sizes: req.body.sizes,
+            colors: req.body.colors,
+            stock: req.body.stock,
+            gender: req.body.gender,
+            season: req.body.season,
+            isTrending: req.body.isTrending,
+            isBestSeller: req.body.isBestSeller,
+            status: req.body.status,
+            images
 
     });
 
@@ -333,35 +349,6 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     let updateData = { ...req.body };
-    // Parse sizes
-if (typeof updateData.sizes === "string") {
-  try {
-    updateData.sizes = JSON.parse(updateData.sizes);
-  } catch (err) {
-    updateData.sizes = updateData.sizes
-      .replace(/^\[/, "")
-      .replace(/\]$/, "")
-      .replace(/"/g, "")
-      .split(",")
-      .map(s => s.trim())
-      .filter(Boolean);
-  }
-}
-
-// Parse colors
-if (typeof updateData.colors === "string") {
-  try {
-    updateData.colors = JSON.parse(updateData.colors);
-  } catch (err) {
-    updateData.colors = updateData.colors
-      .replace(/^\[/, "")
-      .replace(/\]$/, "")
-      .replace(/"/g, "")
-      .split(",")
-      .map(c => c.trim())
-      .filter(Boolean);
-  }
-}
 
     // If new images are uploaded, replace old images
     if (req.files && req.files.length > 0) {

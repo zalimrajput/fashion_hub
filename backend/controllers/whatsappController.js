@@ -1,29 +1,35 @@
-const axios = require("axios");
 const { sendMessage } = require("../services/whatsappService");
+const { handleIncomingMessage } = require("../services/conversationService");
 
 const receiveMessage = async (req, res) => {
-    try {
-        const incomingMessage = req.body.Body;
-        const from = req.body.From;
+  try {
+    const incomingMessage = req.body.Body;
+    const from = req.body.From;
 
-        console.log("Message:", incomingMessage);
-        console.log("From:", from);
+    console.log("WhatsApp message:", incomingMessage);
+    console.log("From:", from);
 
-        const aiResponse = await axios.post("http://127.0.0.1:8000/chat", {
-            session_id: from,
-            message: incomingMessage
-        });
-
-        await sendMessage(from, aiResponse.data.reply);
-
-        res.status(200).send("OK");
-
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-        res.status(500).send("Error");
+    if (!incomingMessage || !from) {
+      return res.status(200).send("Ignored empty message.");
     }
+
+    const { reply } = await handleIncomingMessage({
+      from,
+      body: incomingMessage,
+      platform: "WhatsApp",
+    });
+
+    await sendMessage(from, reply);
+
+    res.status(200).send("Message processed.");
+  } catch (err) {
+    console.error("WhatsApp webhook error:", err);
+
+    // Always acknowledge Twilio to avoid retry storms
+    res.status(200).send("Error handled.");
+  }
 };
 
 module.exports = {
-    receiveMessage,
+  receiveMessage,
 };

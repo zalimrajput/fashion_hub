@@ -1,8 +1,21 @@
 const twilio = require("twilio");
 
-const client = twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-);
+let client = null;
 
-module.exports = client;
+const getTwilioClient = () => {
+  if (client) return client;
+
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+
+  if (!sid || !token) {
+    throw new Error(
+      "Twilio credentials missing. Set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN."
+    );
+  }
+
+  client = twilio(sid, token);
+  return client;
+};
+
+module.exports = getTwilioClient;
