@@ -178,11 +178,11 @@ The production deployment consists of three containers:
 
 ## Contributors
 
-- M Mujeeb ur Rahman
+- M Mujeeb ur Rahman  (https://github.com/Engr-Mujeeb-Rahman)
 - Hasham Mustafa
 - Muhammad Anas
 - Muaz Nadeem
-- Minahil Azhar
+- Minahil Azhar (https://github.com/zalimrajput)
 - Arbaz Khalid
 - Qatada
 
